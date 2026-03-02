@@ -46,4 +46,66 @@
  */
 export function railwayReservation(passengers, trains) {
   // Your code here
+  if (
+    !Array.isArray(passengers) ||
+    !Array.isArray(trains) ||
+    passengers.length == 0 ||
+    trains.length === 0
+  )
+    return [];
+  let ans = [];
+  for (let passenger of passengers) {
+    let found = false;
+    let foundTrain = null;
+    for (let train of trains) {
+      if (train.trainNumber === passenger.trainNumber) {
+        found = true;
+        foundTrain = train;
+        break;
+      }
+    }
+    let obj = null;
+    if (!found) {
+      obj = {
+        name: passenger.name,
+        trainNumber: passenger.trainNumber,
+        class: null,
+        status: "train_not_found",
+      };
+      ans.push(obj);
+      continue;
+    }
+    if (foundTrain.seats[passenger.preferred] > 0) {
+      foundTrain.seats[passenger.preferred]--;
+      obj = {
+        name: passenger.name,
+        trainNumber: passenger.trainNumber,
+        class: passenger.preferred,
+        status: "confirmed",
+      };
+    } else if (foundTrain.seats[passenger.fallback] > 0) {
+      foundTrain.seats[passenger.fallback]--;
+      obj = {
+        name: passenger.name,
+        trainNumber: passenger.trainNumber,
+        class: passenger.fallback,
+        status: "confirmed",
+      };
+    } else {
+      obj = {
+        name: passenger.name,
+        trainNumber: passenger.trainNumber,
+        class: passenger.preferred,
+        status: "waitlisted",
+      };
+    }
+
+    const updated = trains.map((train) =>
+      train.trainNumber === foundTrain.trainNumber ? foundTrain : train,
+    );
+    trains = updated;
+
+    ans.push(obj);
+  }
+  return ans;
 }
